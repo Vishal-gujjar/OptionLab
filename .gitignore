@@ -1,0 +1,84 @@
+# ==========================================
+# Environment variables and secrets
+# ==========================================
+
+.env
+.env.*
+!.env.example
+
+# ==========================================
+# Python virtual environments
+# ==========================================
+
+.venv/
+venv/
+env/
+
+# ==========================================
+# Python generated files
+# ==========================================
+
+__pycache__/
+*.py[cod]
+*$py.class
+
+# ==========================================
+# Python test and coverage files
+# ==========================================
+
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+
+# ==========================================
+# C++ / CMake generated files
+# ==========================================
+
+build/
+cmake-build-*/
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+compile_commands.json
+
+*.o
+*.obj
+*.a
+*.lib
+*.dll
+*.so
+*.dylib
+*.exe
+
+# ==========================================
+# Local downloaded market data
+# ==========================================
+
+data/cache/
+
+# ==========================================
+# NSE contract-master files
+# ==========================================
+
+data/contract_metadata/raw/
+data/contract_metadata/normalized/
+
+# ==========================================
+# Editor / operating system files
+# ==========================================
+
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ==========================================
+# Logs and temporary files
+# ==========================================
+
+*.log
+*.tmp
+*.bak
+

@@ -1,0 +1,431 @@
+:root {
+    --primary: #315efb;
+    --primary-dark: #2449cf;
+    --background: #f5f7fb;
+    --surface: #ffffff;
+    --text: #172033;
+    --muted: #778196;
+    --border: #e8ecf3;
+    --success: #159765;
+}
+
+body {
+    background: var(--background);
+    color: var(--text);
+    font-family: Inter, "Segoe UI", Arial, sans-serif;
+}
+
+.navbar {
+    background: #111b31;
+    padding: 17px 0;
+}
+
+.navbar-brand {
+    font-size: 21px;
+    letter-spacing: -0.5px;
+}
+
+.brand-mark {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 31px;
+    height: 31px;
+    background: var(--primary);
+    border-radius: 9px;
+    margin-right: 7px;
+}
+
+.navbar-text {
+    color: #aab5c9;
+    font-size: 13px;
+}
+
+.main-heading {
+    font-size: clamp(27px, 4vw, 36px);
+    font-weight: 750;
+    letter-spacing: -1px;
+}
+
+.eyebrow {
+    color: var(--primary);
+    font-size: 11px;
+    font-weight: 750;
+    letter-spacing: 1.5px;
+}
+
+.status-note {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 12px;
+    background: #e9f7f0;
+    color: #15734c;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    background: #20ad73;
+    border-radius: 50%;
+}
+
+.panel,
+.metric-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 13px;
+    padding: 22px;
+    box-shadow: 0 4px 18px rgba(27, 42, 75, 0.035);
+}
+
+.panel-heading {
+    margin-bottom: 22px;
+}
+
+.panel-heading h5 {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 5px;
+}
+
+.panel-heading p {
+    color: var(--muted);
+    font-size: 12px;
+    margin-bottom: 0;
+}
+
+.form-label {
+    font-size: 13px;
+    font-weight: 650;
+}
+
+.form-control,
+.form-select {
+    border: 1px solid #dfe5ef;
+    min-height: 43px;
+    font-size: 14px;
+    border-radius: 8px;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(49, 94, 251, 0.10);
+}
+
+.form-text {
+    color: var(--muted);
+    font-size: 11px;
+}
+
+.btn-primary {
+    background: var(--primary);
+    border-color: var(--primary);
+    font-weight: 650;
+    font-size: 14px;
+    padding: 12px;
+    border-radius: 8px;
+}
+
+.btn-primary:hover {
+    background: var(--primary-dark);
+    border-color: var(--primary-dark);
+}
+
+.empty-state {
+    min-height: 320px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.empty-icon {
+    width: 62px;
+    height: 62px;
+    display: grid;
+    place-items: center;
+    border-radius: 17px;
+    background: #edf1ff;
+    color: var(--primary);
+    font-size: 30px;
+    margin-bottom: 20px;
+}
+
+.empty-state h4 {
+    font-weight: 700;
+    font-size: 19px;
+}
+
+.empty-state p {
+    max-width: 340px;
+    font-size: 13px;
+}
+
+.metric-card {
+    height: 100%;
+    padding: 18px;
+}
+
+.metric-label {
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 600;
+    margin-bottom: 12px;
+}
+
+.metric-value {
+    color: var(--text);
+    font-size: clamp(19px, 2vw, 25px);
+    font-weight: 750;
+    letter-spacing: -0.6px;
+    overflow-wrap: anywhere;
+}
+
+.metric-value.highlight {
+    color: var(--success);
+}
+
+.metric-unit {
+    color: var(--muted);
+    font-size: 11px;
+    margin-top: 5px;
+}
+
+.confidence-range {
+    font-size: 21px;
+    font-weight: 750;
+    color: var(--primary);
+    margin-bottom: 12px;
+}
+
+.chart-container {
+    position: relative;
+    width: 100%;
+    height: 230px;
+}
+
+.detail-label {
+    color: var(--muted);
+    font-size: 11px;
+    margin-bottom: 4px;
+}
+
+.detail-value {
+    font-size: 13px;
+    font-weight: 650;
+    overflow-wrap: anywhere;
+}
+
+.parameter-item {
+    padding: 12px;
+    border: 1px solid var(--border);
+    border-radius: 9px;
+}
+
+.parameter-label {
+    color: var(--muted);
+    font-size: 11px;
+    margin-bottom: 5px;
+}
+
+.parameter-value {
+    font-weight: 700;
+    font-size: 14px;
+}
+
+.footer-text {
+    text-align: center;
+    color: var(--muted);
+    font-size: 12px;
+}
+
+@media (max-width: 576px) {
+    main.container {
+        padding-top: 30px !important;
+    }
+
+    .panel {
+        padding: 17px;
+    }
+
+    .navbar-text {
+        font-size: 10px;
+    }
+}
+
+/* Stage 13: Financial assumption presentation */
+
+.parameter-item {
+    min-height: 76px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.parameter-label {
+    line-height: 1.4;
+}
+
+.parameter-value {
+    overflow-wrap: anywhere;
+    line-height: 1.4;
+}
+
+.detail-value {
+    overflow-wrap: anywhere;
+}
+
+.form-text {
+    line-height: 1.5;
+}
+
+.sensitivity-chart-container {
+    position: relative;
+    width: 100%;
+    height: 260px;
+    min-height: 220px;
+}
+
+#market-status-panel {
+    transition: background-color 0.2s ease;
+}
+
+#market-status-heading {
+    line-height: 1.45;
+}
+
+#market-status-details {
+    overflow-wrap: anywhere;
+}
+
+#market-status-warnings,
+#market-refresh-message,
+#contract-warning,
+#calculation-data-warnings {
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+
+#contract-results .detail-value,
+#market-status-panel .detail-value,
+#lot-valuation-results .detail-value {
+    overflow-wrap: anywhere;
+}
+
+#refresh-market-data:disabled {
+    cursor: not-allowed;
+}
+
+#symbol,
+#expiry-date,
+#strike-price {
+    min-height: 42px;
+}
+
+.stage17-chart-container {
+    position: relative;
+    width: 100%;
+    min-height: 240px;
+    height: 300px;
+}
+
+#strategy-output {
+    border-top: 1px solid var(--border-color, #e5e7eb);
+    padding-top: 1.25rem;
+}
+
+#strategy-legs-body td,
+#strategy-legs-body th {
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+#strategy-status,
+#strategy-warnings {
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+
+@media print {
+
+    /* Stage 17 charts */
+    .stage17-chart-container {
+
+        height: 250px;
+
+        min-height: 230px;
+
+        break-inside: avoid;
+
+        page-break-inside: avoid;
+    }
+
+    /* Stage 15 sensitivity charts */
+    .sensitivity-chart-container {
+
+        height: 230px;
+
+        min-height: 220px;
+
+        break-inside: avoid;
+
+        page-break-inside: avoid;
+    }
+
+    /* Each sensitivity chart card should stay together. */
+    #sensitivity-results .border.rounded.p-3.h-100 {
+
+        break-inside: avoid;
+
+        page-break-inside: avoid;
+
+        margin-bottom: 12px;
+    }
+
+    /* Print sensitivity charts vertically at full width.
+       This avoids squeezing three chart cards into
+       narrow columns on a printed page. */
+    #sensitivity-results .row {
+
+        display: block !important;
+    }
+
+    #sensitivity-results .row > [class*="col-"] {
+
+        width: 100% !important;
+
+        max-width: 100% !important;
+
+        margin-bottom: 12px;
+
+        break-inside: avoid;
+
+        page-break-inside: avoid;
+    }
+
+    #sensitivity-results,
+    #strategy-analysis-panel,
+    #single-payoff-results,
+    #stage17-analytics {
+
+        break-inside: avoid;
+
+        page-break-inside: avoid;
+    }
+
+    .sensitivity-chart-container canvas,
+    .stage17-chart-container canvas {
+
+        max-width: 100% !important;
+
+        max-height: 100% !important;
+    }
+}
+
+

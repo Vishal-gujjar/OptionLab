@@ -1,0 +1,1484 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>OptionLab | Monte Carlo Option Pricing</title>
+
+    <!-- Bootstrap -->
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
+
+    <!-- Custom CSS -->
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/style.css') }}"
+    >
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.6.2/dist/chart.umd.min.js"></script>
+
+    <!-- Custom JavaScript -->
+    <script
+        src="{{ url_for('static', filename='js/app.js') }}"
+        defer
+    ></script>
+</head>
+
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+
+            <a class="navbar-brand fw-bold" href="/">
+                <span class="brand-mark">O</span>
+                OptionLab
+            </a>
+
+            <span class="navbar-text">
+                Monte Carlo Pricing Platform
+            </span>
+
+        </div>
+    </nav>
+
+
+    <main class="container py-5">
+
+        <!-- Heading -->
+        <section class="mb-4">
+
+            <div class="eyebrow mb-2">
+                QUANTITATIVE FINANCE • OPTION PRICING
+            </div>
+
+            <h1 class="main-heading">
+                Option Pricing Dashboard
+            </h1>
+
+            <p class="text-secondary">
+                Estimate European Call and Put option premiums
+                using Monte Carlo simulation and historical market data.
+            </p>
+
+            <div class="status-note">
+                <span class="status-dot"></span>
+                Local market-data cache connected
+            </div>
+
+        </section>
+
+
+        <div class="row g-4">
+
+            <!-- INPUT SECTION -->
+            <div class="col-lg-4">
+
+                <div class="panel h-100">
+
+                    <div class="panel-heading">
+                        <h5>Pricing Parameters</h5>
+                        <p>Configure your option contract.</p>
+                    </div>
+
+
+                    <form id="pricing-form">
+
+                        <div class="mb-3">
+
+                            <label for="symbol" class="form-label">
+                                NSE Stock Symbol
+                            </label>
+
+                            <select
+                                class="form-select"
+                                id="symbol"
+                                required
+                                disabled
+                            >
+                                <option value="">
+                                    Loading NSE stock symbols...
+                                </option>
+                            </select>
+
+                            <div class="form-text">
+                                Select a stock available in the NSE stock-option contract master.
+                            </div>
+
+                        </div>
+
+                        <div
+                            class="border rounded p-3 mb-3"
+                            id="market-status-panel"
+                        >
+
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <strong class="small">Market Data Status</strong>
+
+                                <button
+                                    type="button"
+                                    class="btn btn-sm btn-outline-primary"
+                                    id="refresh-market-data"
+                                    disabled
+                                >
+                                    Refresh Data
+                                </button>
+                            </div>
+
+                            <div
+                                class="small fw-semibold"
+                                id="market-status-heading"
+                            >
+                                Checking local cache...
+                            </div>
+
+                            <div
+                                class="small text-secondary mt-2"
+                                id="market-status-details"
+                            >
+                                —
+                            </div>
+
+                            <div
+                                class="small mt-2"
+                                id="market-status-warnings"
+                            ></div>
+
+                            <div
+                                class="small mt-2"
+                                id="market-refresh-message"
+                            ></div>
+
+                        </div>
+
+
+                        <div class="mb-3">
+
+                            <label for="strike-price" class="form-label">
+                                Listed Strike Price (₹)
+                            </label>
+
+                            <select
+                                class="form-select"
+                                id="strike-price"
+                                required
+                                disabled
+                            >
+                                <option value="">
+                                    Select a stock and expiry first
+                                </option>
+                            </select>
+
+                            <div class="form-text">
+                                Only strikes present in the NSE contract master are available.
+                            </div>
+
+                        </div>
+
+
+                        <div class="row">
+
+                            <div class="col-6 mb-3">
+
+                                <label for="risk-free-rate" class="form-label">
+                                    Risk-free Rate (%)
+                                </label>
+
+                                <input
+                                    type="number"
+                                    class="form-control"
+                                    id="risk-free-rate"
+                                    value="6"
+                                    step="0.01"
+                                    required
+                                >
+
+                                <div class="form-text">
+                                    Annualized continuously compounded rate.
+                                    Enter 6 for 6%.
+                                </div>
+
+                            </div>
+
+
+                            <div class="col-6 mb-3">
+
+                                <label for="dividend-yield" class="form-label">
+                                    Dividend Yield (%)
+                                </label>
+
+                                <input
+                                    type="number"
+                                    class="form-control"
+                                    id="dividend-yield"
+                                    value="0"
+                                    step="0.01"
+                                    required
+                                >
+
+                                <div class="form-text">
+                                    Annualized continuous dividend yield.
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <!-- Volatility Selection -->
+
+                        <div class="mb-3">
+
+                            <label for="volatility-mode" class="form-label">
+                                Volatility Source
+                            </label>
+
+                            <select
+                                class="form-select"
+                                id="volatility-mode"
+                                required
+                            >
+
+                                <option value="historical" selected>
+                                    Historical Volatility (Automatic)
+                                </option>
+
+                                <option value="manual">
+                                    Manual Volatility Assumption
+                                </option>
+
+                            </select>
+
+                            <div class="form-text">
+                                Select how annualized volatility should be supplied.
+                            </div>
+
+                        </div>
+
+
+                        <!-- Manual Volatility Input -->
+
+                        <div
+                            class="mb-3 d-none"
+                            id="manual-volatility-container"
+                        >
+
+                            <label for="manual-volatility"class="form-label">
+                                    Manual Annualized Volatility (%)
+                            </label>
+
+                            <input
+                                type="number"
+                                class="form-control"
+                                id="manual-volatility"
+                                value="30"
+                                min="0.01"
+                                step="0.01"
+                            >
+
+                            <div class="form-text">
+                                Example: Enter 30 for 30% annualized volatility.
+                                This is a manual model assumption, not automatically
+                                calculated implied volatility.
+                            </div>
+
+                        </div>
+
+                        <div class="mb-3">
+
+                            <label for="expiry-date" class="form-label">
+                                NSE Contract Expiry
+                            </label>
+
+                            <select
+                                class="form-select"
+                                id="expiry-date"
+                                required
+                                disabled
+                            >
+                                <option value="">
+                                    Select a stock first
+                                </option>
+                            </select>
+
+                            <div class="form-text">
+                                Select an actual expiry date from the NSE contract master.
+                            </div>
+
+                        </div>
+
+
+                        <div class="mb-3">
+
+                            <label for="option-type" class="form-label">
+                                Option Type
+                            </label>
+
+                            <select
+                                class="form-select"
+                                id="option-type"
+                                required
+                            >
+                                <option value="call" selected>
+                                    European Call
+                                </option>
+
+                                <option value="put">
+                                    European Put
+                                </option>
+                            </select>
+
+                        </div>
+
+
+                        <div class="mb-4">
+
+                            <label for="simulations" class="form-label">
+                                Number of Simulations
+                            </label>
+
+                            <select
+                                class="form-select"
+                                id="simulations"
+                            >
+                                <option value="100000" selected>
+                                    100,000
+                                </option>
+
+                                <option value="250000">
+                                    250,000
+                                </option>
+
+                                <option value="500000">
+                                    500,000
+                                </option>
+
+                                <option value="1000000">
+                                    1,000,000
+                                </option>
+                            </select>
+
+                        </div>
+
+
+                        <button
+                            type="submit"
+                            class="btn btn-primary w-100"
+                            id="calculate-button"
+                        >
+                            Calculate Option Premium
+                        </button>
+
+                    </form>
+
+                    <div class="small text-secondary mt-3">
+                        Historical volatility is estimated automatically
+                        from adjusted closing prices.
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- RESULTS SECTION -->
+            <div class="col-lg-8">
+
+                <!-- Empty State -->
+                <div class="panel empty-state" id="empty-state">
+
+                    <div class="empty-icon">∑</div>
+
+                    <h4>Ready to Price</h4>
+
+                    <p class="text-secondary mb-0">
+                        Enter your option parameters and click
+                        Calculate Option Premium to see the results.
+                    </p>
+
+                </div>
+
+
+                <!-- Error Message -->
+                <div
+                    class="alert alert-danger d-none"
+                    id="error-message"
+                    role="alert"
+                ></div>
+
+
+                <!-- Loading Message -->
+                <div
+                    class="panel d-none"
+                    id="loading-state"
+                >
+                    <div class="spinner-border text-primary"></div>
+
+                    <p class="mt-3 mb-0">
+                        Running Monte Carlo simulations...
+                    </p>
+                </div>
+
+
+                <!-- Result Panel -->
+                <div id="results-panel" class="d-none">
+
+                    <div class="row g-3 mb-3">
+
+                        <div class="col-sm-6 col-xl-3">
+
+                            <div class="metric-card">
+                                <div class="metric-label">
+                                    Estimated Premium
+                                </div>
+
+                                <div
+                                    class="metric-value highlight"
+                                    id="premium-value"
+                                >
+                                    —
+                                </div>
+
+                                <div class="metric-unit">
+                                    Per share
+                                </div>
+                            </div>
+
+                        </div>
+
+
+                        <div class="col-sm-6 col-xl-3">
+
+                            <div class="metric-card">
+                                <div class="metric-label">
+                                    Spot Price
+                                </div>
+
+                                <div
+                                    class="metric-value"
+                                    id="spot-value"
+                                >
+                                    —
+                                </div>
+
+                                <div class="metric-unit">
+                                    Last EOD close
+                                </div>
+                            </div>
+
+                        </div>
+
+
+                        <div class="col-sm-6 col-xl-3">
+
+                            <div class="metric-card">
+                                <div class="metric-label">
+                                    Selected Volatility
+                                </div>
+
+                                <div
+                                    class="metric-value"
+                                    id="volatility-value"
+                                >
+                                    —
+                                </div>
+
+                                <div class="metric-unit">
+                                    Selected annualized input
+                                </div>
+                            </div>
+
+                        </div>
+
+
+                        <div class="col-sm-6 col-xl-3">
+
+                            <div class="metric-card">
+                                <div class="metric-label">
+                                    Standard Error
+                                </div>
+
+                                <div
+                                    class="metric-value"
+                                    id="standard-error-value"
+                                >
+                                    —
+                                </div>
+
+                                <div class="metric-unit">
+                                    Per share
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- Confidence Interval -->
+                    <div class="panel mb-3">
+
+                        <div class="panel-heading">
+                            <h5>Pricing Confidence Interval</h5>
+
+                            <p>
+                                Approximate 95% confidence interval
+                                of the Monte Carlo estimate.
+                            </p>
+                        </div>
+
+                        <div class="confidence-range" id="confidence-range">
+                            —
+                        </div>
+
+                        <div class="chart-container">
+                            <canvas id="confidence-chart"></canvas>
+                        </div>
+
+                    </div>
+
+
+                    <!-- NSE Contract Information -->
+                    <div class="panel mb-3">
+
+                        <div class="panel-heading">
+                            <h5>NSE Contract Information</h5>
+
+                            <p>
+                                Contract metadata verified against the imported NSE master.
+                            </p>
+                        </div>
+
+                        <div class="row g-3">
+
+                            <div class="col-md-6">
+                                <div class="detail-label">Contract ID</div>
+                                <div class="detail-value" id="contract-id">—</div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="detail-label">Underlying Symbol</div>
+                                <div class="detail-value" id="contract-symbol">—</div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="detail-label">Expiry Date</div>
+                                <div class="detail-value" id="contract-expiry">—</div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="detail-label">Strike Price</div>
+                                <div class="detail-value" id="contract-strike">—</div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="detail-label">Option Type</div>
+                                <div class="detail-value" id="contract-type">—</div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="detail-label">Board Lot Quantity</div>
+                                <div class="detail-value" id="contract-lot-size">—</div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="detail-label">Tick Size</div>
+                                <div class="detail-value" id="contract-tick-size">—</div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="detail-label">NSE Contract Master Date</div>
+                                <div class="detail-value" id="contract-source-date">—</div>
+                            </div>
+
+                            <div class="col-12">
+                                <div class="detail-label">Trading Permission</div>
+                                <div class="detail-value" id="contract-permission">—</div>
+                            </div>
+
+                        </div>
+
+                        <div
+                            class="small mt-3"
+                            id="contract-warning"
+                        ></div>
+
+                    </div>
+
+
+                    <!-- Lot-level Theoretical Valuation -->
+                    <div class="panel mb-3">
+
+                        <div class="panel-heading">
+                            <h5>Theoretical Contract Valuation</h5>
+
+                            <p>
+                                Per-share model estimates multiplied by the applicable NSE board lot quantity.
+                            </p>
+                        </div>
+
+                        <div class="row g-3">
+
+                            <div class="col-md-6">
+                                <div class="detail-label">
+                                    Monte Carlo Premium per Lot
+                                </div>
+
+                                <div class="detail-value" id="mc-premium-lot">
+                                    —
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="detail-label">
+                                    Black–Scholes Premium per Lot
+                                </div>
+
+                                <div class="detail-value" id="bs-premium-lot">
+                                    —
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="detail-label">
+                                    Standard Error per Lot
+                                </div>
+
+                                <div class="detail-value" id="standard-error-lot">
+                                    —
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="detail-label">
+                                    Absolute Pricing Error per Lot
+                                </div>
+
+                                <div class="detail-value" id="absolute-error-lot">
+                                    —
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <div class="detail-label">
+                                    95% Confidence Interval per Lot
+                                </div>
+
+                                <div class="detail-value" id="confidence-interval-lot">
+                                    —
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div class="small text-secondary mt-3">
+                            Theoretical model valuation only. This is not a live
+                            exchange premium, margin requirement, or trading instruction.
+                        </div>
+
+                    </div>
+
+
+                    <!-- Market Data Status for this Calculation -->
+                    <div class="panel mb-3">
+
+                        <div class="panel-heading">
+                            <h5>Data Quality and Freshness</h5>
+                            <p>Market-data status used for this calculation.</p>
+                        </div>
+
+                        <div
+                            class="detail-value"
+                            id="calculation-data-status"
+                        >
+                            —
+                        </div>
+
+                        <div
+                            class="small text-secondary mt-2"
+                            id="calculation-data-warnings"
+                        ></div>
+
+                    </div>
+
+
+
+                    <!-- Market Information -->
+                    <div class="panel mb-3">
+
+                        <div class="panel-heading">
+                            <h5>Market Data Information</h5>
+
+                            <p>
+                                Data used by the pricing engine.
+                            </p>
+                        </div>
+
+
+                        <div class="row g-3">
+
+                            <div class="col-md-6">
+                                <div class="detail-label">
+                                    Stock Symbol
+                                </div>
+
+                                <div
+                                    class="detail-value"
+                                    id="market-symbol"
+                                >—</div>
+                            </div>
+
+
+                            <div class="col-md-6">
+                                <div class="detail-label">
+                                    Spot Price Date
+                                </div>
+
+                                <div
+                                    class="detail-value"
+                                    id="spot-date"
+                                >—</div>
+                            </div>
+
+
+                            <div class="col-md-6">
+                                <div class="detail-label">
+                                    Historical Data Period
+                                </div>
+
+                                <div
+                                    class="detail-value"
+                                    id="volatility-period"
+                                >—</div>
+                            </div>
+
+
+                            <div class="col-md-6">
+                                <div class="detail-label">
+                                    Price Observations
+                                </div>
+
+                                <div
+                                    class="detail-value"
+                                    id="observations"
+                                >—</div>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="row g-3 mt-1">
+                        <div class="col-md-6">
+                            <div class="detail-label">
+                                Selected Volatility Source
+                            </div>
+
+                            <div
+                                class="detail-value"
+                                id="volatility-source"
+                            >—</div>
+                        </div>
+
+
+                        <div class="col-md-6">
+                            <div class="detail-label">
+                                Selected Annualized Volatility
+                            </div>
+
+                            <div
+                                class="detail-value"
+                                id="selected-volatility"
+                            >—</div>
+                        </div>
+                    </div>
+
+
+
+                    <div
+                        class="mt-4 pt-3 border-top"
+                        id="benchmark-results"
+                    >
+                        <h6 class="mb-3">
+                            Analytical Model Benchmark
+                        </h6>
+
+                        <p class="text-muted small">
+                            Comparison of the Monte Carlo estimate with the
+                            Black-Scholes-Merton analytical price using the
+                            same option parameters.
+                        </p>
+
+                        <div class="row g-3">
+
+                            <div class="col-md-6">
+                                <div class="detail-label">
+                                    Black-Scholes Analytical Price
+                                </div>
+
+                                <div
+                                    class="detail-value"
+                                    id="black-scholes-price"
+                                >—</div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="detail-label">
+                                    Absolute Pricing Error
+                                </div>
+
+                                <div
+                                    class="detail-value"
+                                    id="benchmark-absolute-error"
+                                >—</div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="detail-label">
+                                    Relative Pricing Error
+                                </div>
+
+                                <div
+                                    class="detail-value"
+                                    id="benchmark-relative-error"
+                                >—</div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="detail-label">
+                                    Analytical Price vs. 95% Confidence Interval
+                                </div>
+
+                                <div
+                                    class="detail-value"
+                                    id="benchmark-ci-status"
+                                >—</div>
+                            </div>
+
+                        </div>
+                    </div>
+
+
+
+                    <div
+                        class="mt-4 pt-3 border-top"
+                        id="greeks-results"
+                    >
+                        <h6 class="mb-2">
+                            Option Greeks
+                        </h6>
+
+                        <p class="text-muted small">
+                            Analytical sensitivities calculated using the
+                            Black-Scholes-Merton model.
+                        </p>
+
+                        <div class="row g-3">
+
+                            <div class="col-md-6">
+                                <div class="detail-label">Delta</div>
+                                <div class="detail-value" id="greek-delta">—</div>
+                                <div class="small text-muted">
+                                    Option-price change per ₹1 spot-price change
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="detail-label">Gamma</div>
+                                <div class="detail-value" id="greek-gamma">—</div>
+                                <div class="small text-muted">
+                                    Delta change per ₹1 spot-price change
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="detail-label">Vega</div>
+                                <div class="detail-value" id="greek-vega">—</div>
+                                <div class="small text-muted">
+                                    Option-price change per 1 volatility percentage point
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="detail-label">Theta</div>
+                                <div class="detail-value" id="greek-theta">—</div>
+                                <div class="small text-muted">
+                                    Option-price change per calendar day
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="detail-label">Rho</div>
+                                <div class="detail-value" id="greek-rho">—</div>
+                                <div class="small text-muted">
+                                    Option-price change per 1 interest-rate percentage point
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div class="mt-4">
+                            <h6 class="mb-2">
+                                Analytical vs. Numerical Greeks
+                            </h6>
+
+                            <p class="text-muted small">
+                                Numerical values are calculated using finite
+                                differences of the analytical option price.
+                            </p>
+
+                            <div class="table-responsive">
+                                <table class="table table-sm table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Greek</th>
+                                            <th>Analytical</th>
+                                            <th>Numerical</th>
+                                            <th>Absolute Difference</th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody id="greeks-validation-body">
+                                        <tr>
+                                            <td colspan="4" class="text-muted">
+                                                Calculate an option to see the comparison.
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div
+                        class="mt-4 pt-3 border-top"
+                        id="sensitivity-results"
+                    >
+                        <h6 class="mb-2">
+                            Option Price Sensitivity Analysis
+                        </h6>
+
+                        <p class="text-muted small">
+                            Each chart changes one model input while
+                            keeping the other inputs constant.
+                        </p>
+
+                        <div class="row g-4">
+
+                            <div class="col-lg-4 col-md-6">
+                                <div class="border rounded p-3 h-100">
+                                    <h6 class="small mb-3">
+                                        Sensitivity to Spot Price
+                                    </h6>
+
+                                    <div class="sensitivity-chart-container">
+                                        <canvas id="spot-sensitivity-chart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-4 col-md-6">
+                                <div class="border rounded p-3 h-100">
+                                    <h6 class="small mb-3">
+                                        Sensitivity to Volatility
+                                    </h6>
+
+                                    <div class="sensitivity-chart-container">
+                                        <canvas id="volatility-sensitivity-chart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-4 col-md-6">
+                                <div class="border rounded p-3 h-100">
+                                    <h6 class="small mb-3">
+                                        Sensitivity to Time to Expiry
+                                    </h6>
+
+                                    <div class="sensitivity-chart-container">
+                                        <canvas id="maturity-sensitivity-chart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    
+
+                    <!-- STAGE 17: ADVANCED OPTION ANALYTICS -->
+
+                    <div class="panel mb-3" id="stage17-analytics">
+
+                        <div class="panel-heading">
+                            <h5>Terminal Stock Price Distribution</h5>
+
+                            <p>
+                                Risk-neutral GBM simulation of possible stock prices at expiry.
+                                This is a model scenario distribution, not a market forecast.
+                            </p>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+
+                            <div class="col-md-6">
+                                <div class="detail-label">
+                                    Simulated Terminal Mean
+                                </div>
+
+                                <div
+                                    class="detail-value"
+                                    id="terminal-mean"
+                                >—</div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="detail-label">
+                                    Theoretical Expected Terminal Price
+                                </div>
+
+                                <div
+                                    class="detail-value"
+                                    id="terminal-theoretical-mean"
+                                >—</div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="detail-label">
+                                    Sample 5th Percentile
+                                </div>
+
+                                <div
+                                    class="detail-value"
+                                    id="terminal-p5"
+                                >—</div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="detail-label">
+                                    Sample 95th Percentile
+                                </div>
+
+                                <div
+                                    class="detail-value"
+                                    id="terminal-p95"
+                                >—</div>
+                            </div>
+
+                        </div>
+
+                        <div class="stage17-chart-container">
+                            <canvas id="terminal-distribution-chart"></canvas>
+                        </div>
+
+                        <div
+                            class="small text-secondary mt-2"
+                            id="stage17-analytics-status"
+                        >
+                            Waiting for pricing results...
+                        </div>
+
+                        <div class="small text-secondary mt-3">
+                            20,000 reproducible simulation samples using the configured seed.
+                            Results depend on the selected model inputs.
+                        </div>
+
+                    </div>
+
+
+                    <!-- SINGLE OPTION PAYOFF AND P&L -->
+
+                    <div class="panel mb-3" id="single-payoff-results">
+
+                        <div class="panel-heading">
+                            <h5>Option Payoff and Profit/Loss Analysis</h5>
+
+                            <p>
+                                Expiry payoff and theoretical P&L for a single option position.
+                            </p>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+
+                            <div class="col-md-6">
+                                <div class="detail-label">
+                                    Break-even Stock Price
+                                </div>
+
+                                <div
+                                    class="detail-value"
+                                    id="single-break-even"
+                                >—</div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="detail-label">
+                                    Premium per Lot
+                                </div>
+
+                                <div
+                                    class="detail-value"
+                                    id="single-premium-lot"
+                                >—</div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="detail-label">
+                                    Long Position — Maximum Profit
+                                </div>
+
+                                <div
+                                    class="detail-value"
+                                    id="single-long-max-profit"
+                                >—</div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="detail-label">
+                                    Long Position — Maximum Loss
+                                </div>
+
+                                <div
+                                    class="detail-value"
+                                    id="single-long-max-loss"
+                                >—</div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="detail-label">
+                                    Short Position — Maximum Profit
+                                </div>
+
+                                <div
+                                    class="detail-value"
+                                    id="single-short-max-profit"
+                                >—</div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="detail-label">
+                                    Short Position — Maximum Loss
+                                </div>
+
+                                <div
+                                    class="detail-value"
+                                    id="single-short-max-loss"
+                                >—</div>
+                            </div>
+
+                        </div>
+
+                        <div class="stage17-chart-container">
+                            <canvas id="single-option-payoff-chart"></canvas>
+                        </div>
+
+                        <div class="small text-secondary mt-3">
+                            P&L includes the model premium but excludes brokerage, taxes,
+                            slippage, and other transaction costs.
+                        </div>
+
+                    </div>
+
+
+                    <!-- MULTI-LEG STRATEGY ANALYSIS -->
+
+                    <div class="panel mb-3" id="strategy-analysis-panel">
+
+                        <div class="panel-heading">
+                            <h5>Multi-Leg Option Strategy Analyzer</h5>
+
+                            <p>
+                                Build and analyze basic European option strategies using
+                                actual NSE-listed option contracts.
+                            </p>
+                        </div>
+
+                        <div class="mb-3">
+
+                            <label
+                                for="strategy-type"
+                                class="form-label"
+                            >
+                                Select Strategy
+                            </label>
+
+                            <select
+                                class="form-select"
+                                id="strategy-type"
+                            >
+
+                                <option value="long_call">
+                                    Long Call
+                                </option>
+
+                                <option value="long_put">
+                                    Long Put
+                                </option>
+
+                                <option value="bull_call_spread">
+                                    Bull Call Spread
+                                </option>
+
+                                <option value="bear_put_spread">
+                                    Bear Put Spread
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <div class="row">
+
+                            <div class="col-md-6 mb-3">
+
+                                <label
+                                    for="strategy-lower-strike"
+                                    class="form-label"
+                                >
+                                    Lower / Selected Strike (₹)
+                                </label>
+
+                                <input
+                                    type="number"
+                                    class="form-control"
+                                    id="strategy-lower-strike"
+                                    min="0.01"
+                                    step="0.01"
+                                    required
+                                >
+
+                                <div class="form-text">
+                                    Enter a strike listed for the selected stock and expiry.
+                                </div>
+
+                            </div>
+
+
+                            <div
+                                class="col-md-6 mb-3 d-none"
+                                id="strategy-upper-strike-container"
+                            >
+
+                                <label
+                                    for="strategy-upper-strike"
+                                    class="form-label"
+                                >
+                                    Upper Strike (₹)
+                                </label>
+
+                                <input
+                                    type="number"
+                                    class="form-control"
+                                    id="strategy-upper-strike"
+                                    min="0.01"
+                                    step="0.01"
+                                >
+
+                                <div class="form-text">
+                                    Enter another listed strike for the same expiry.
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="mb-3">
+
+                            <label
+                                for="strategy-lots"
+                                class="form-label"
+                            >
+                                Number of Lots per Leg
+                            </label>
+
+                            <input
+                                type="number"
+                                class="form-control"
+                                id="strategy-lots"
+                                value="1"
+                                min="1"
+                                max="50"
+                                step="1"
+                            >
+
+                        </div>
+
+
+                        <button
+                            type="button"
+                            class="btn btn-primary w-100"
+                            id="analyze-strategy-button"
+                            disabled
+                        >
+                            Analyze Strategy
+                        </button>
+
+
+                        <div
+                            class="small text-secondary mt-3"
+                            id="strategy-status"
+                        >
+                            Calculate an option first to initialize strategy analysis.
+                        </div>
+
+
+                        <div
+                            class="d-none mt-4"
+                            id="strategy-output"
+                        >
+
+                            <div class="row g-3 mb-3">
+
+                                <div class="col-md-6">
+                                    <div class="detail-label">
+                                        Initial Net Premium Cash Flow
+                                    </div>
+
+                                    <div
+                                        class="detail-value"
+                                        id="strategy-net-cashflow"
+                                    >—</div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="detail-label">
+                                        Break-even Stock Price(s)
+                                    </div>
+
+                                    <div
+                                        class="detail-value"
+                                        id="strategy-break-even"
+                                    >—</div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="detail-label">
+                                        Maximum Profit
+                                    </div>
+
+                                    <div
+                                        class="detail-value"
+                                        id="strategy-max-profit"
+                                    >—</div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="detail-label">
+                                        Maximum Loss
+                                    </div>
+
+                                    <div
+                                        class="detail-value"
+                                        id="strategy-max-loss"
+                                    >—</div>
+                                </div>
+
+                            </div>
+
+
+                            <h6 class="mb-2">
+                                Strategy Legs
+                            </h6>
+
+                            <div class="table-responsive mb-4">
+
+                                <table class="table table-sm table-bordered">
+
+                                    <thead>
+                                        <tr>
+                                            <th>Position</th>
+                                            <th>Option</th>
+                                            <th>Strike</th>
+                                            <th>Premium / Share</th>
+                                            <th>Lot Size</th>
+                                            <th>Contract ID</th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody id="strategy-legs-body">
+                                        <tr>
+                                            <td colspan="6" class="text-muted">
+                                                Analyze a strategy to see its legs.
+                                            </td>
+                                        </tr>
+                                    </tbody>
+
+                                </table>
+
+                            </div>
+
+
+                            <h6 class="mb-2">
+                                Strategy Expiry P&L
+                            </h6>
+
+                            <div class="stage17-chart-container">
+                                <canvas id="strategy-pnl-chart"></canvas>
+                            </div>
+
+
+                            <div
+                                class="small text-secondary mt-3"
+                                id="strategy-warnings"
+                            ></div>
+
+
+                            <div class="small text-secondary mt-3">
+                                Strategy premiums are calculated using the
+                                Black-Scholes-Merton model for each leg. The analysis
+                                excludes transaction costs and is not a trading recommendation.
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+
+
+                    <!-- Model Parameters -->
+                    <div class="panel">
+
+                        <div class="panel-heading">
+                            <h5>Model Parameters</h5>
+                        </div>
+
+                        <div
+                            class="row g-3"
+                            id="model-parameters"
+                        ></div>
+
+                        <div class="mt-3 small text-secondary">
+                            Theoretical model estimate only.
+                            This application does not execute trades
+                            or display live option-chain quotes.
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+
+
+    <footer class="container py-4">
+        <div class="footer-text">
+            OptionLab · Monte Carlo Option Pricing Platform
+        </div>
+    </footer>
+
+
+</body>
+</html>
+

@@ -1,0 +1,25 @@
+digraph OptionLab {
+  graph [rankdir=TB, bgcolor="white", pad="0.25", nodesep="0.40", ranksep="0.55", fontname="Arial", label="OptionLab — High-Level Architecture", labelloc=t, fontsize=20];
+  node [shape=box, style="rounded,filled", color="#CBD5E1", fillcolor="#F8FAFC", fontname="Arial", fontsize=10, margin="0.16,0.10"];
+  edge [color="#64748B", arrowsize=0.75, penwidth=1.2, fontname="Arial", fontsize=9];
+
+  ui [label="Browser Dashboard\nHTML • Bootstrap • JavaScript • Chart.js", fillcolor="#E0F2FE", color="#0284C7"];
+  flask [label="Flask Application\nRequest validation • JSON APIs", fillcolor="#DBEAFE", color="#2563EB"];
+  market [label="Market Data Services\nTejHQ • CSV cache • data integrity", fillcolor="#DCFCE7", color="#16A34A"];
+  contracts [label="NSE Contract Services\nMaster import • symbol/expiry/strike validation", fillcolor="#DCFCE7", color="#16A34A"];
+  workflow [label="Pricing Workflow\nSpot • volatility • maturity • assumptions", fillcolor="#FEF3C7", color="#D97706"];
+  bridge [label="Python-to-C++ Bridge\nSubprocess • timeout • JSON validation", fillcolor="#FFEDD5", color="#EA580C"];
+  engine [label="C++17 Monte Carlo Engine\nRisk-neutral GBM • payoff • Welford • CI", fillcolor="#FCE7F3", color="#DB2777"];
+  analytics [label="Python Analytics\nBSM • Greeks • validation • sensitivity", fillcolor="#F3E8FF", color="#9333EA"];
+  stage17 [label="Stage 17 Analytics\nTerminal distribution • payoff • strategies", fillcolor="#F3E8FF", color="#9333EA"];
+
+  ui -> flask [dir=both, label="HTTP / JSON"];
+  flask -> market;
+  flask -> contracts;
+  flask -> stage17;
+  market -> workflow;
+  contracts -> workflow;
+  workflow -> bridge;
+  bridge -> engine [dir=both, label="CLI arguments / JSON"];
+  workflow -> analytics;
+}
