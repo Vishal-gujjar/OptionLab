@@ -1,6 +1,6 @@
 # OptionLab
 
-**NSE stock-option pricing and quantitative analysis platform**
+## NSE stock-option pricing and quantitative analysis platform
 
 OptionLab is a local, personal-use application for theoretical pricing and analysis of European-style NSE stock options. It combines a C++17 Monte Carlo pricing engine with a Python/Flask backend and a browser dashboard built with HTML, CSS, Bootstrap, JavaScript and Chart.js.
 
@@ -106,7 +106,7 @@ The detailed module map, data flow and endpoint inventory are in [`docs/ARCHITEC
 ## Technology stack
 
 | Layer | Technology |
-|---|---|
+| --- | --- |
 | Pricing engine | C++17 |
 | Build | CMake |
 | Backend | Python 3.13, Flask |
@@ -158,7 +158,7 @@ Open PowerShell in the project directory.
 ### 1. Clone the repository
 
 ```powershell
-git clone <YOUR_REPOSITORY_URL>
+git clone https://github.com/Vishal-gujjar/OptionLab.git
 cd OptionLab
 ```
 
@@ -300,7 +300,7 @@ Rates, dividend yield and volatility are decimal fractions: `0.06` means 6%. The
 ## API overview
 
 | Method | Endpoint | Purpose |
-|---|---|---|
+| --- | --- | --- |
 | GET | `/` | Dashboard |
 | GET | `/health` | Health check |
 | GET | `/api/contracts/symbols` | Available stock-option symbols |
@@ -364,4 +364,12 @@ The project includes tests for C++ Monte Carlo pricing, BSM, pricing bridge, his
 
 ## License
 
-No `LICENSE` file is currently supplied. Until a license is deliberately added, assume that reuse, modification and redistribution are not granted by default. Provider and exchange data terms apply independently of the source-code license.
+OptionLab source code and associated documentation are
+licensed under the MIT License.
+
+See the [LICENSE](LICENSE) file for complete terms.
+
+Market data obtained from TejHQ and NSE/BSE is not covered
+by the software licence. Applicable provider and exchange
+data-use and redistribution restrictions continue to apply.
+See [DATA_NOTICE.md](DATA_NOTICE.md).
