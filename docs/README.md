@@ -1,7 +1,7 @@
 # OptionLab Documentation Index
 
 | File | Contents |
-|---|---|
+| --- | --- |
 | `OptionLab_Technical_Documentation.pdf` | 20-page A4 technical reference: mathematical models, architecture, market/contract pipeline, implementation, API, testing, limitations and demonstration sequence. |
 | `OptionLab_Technical_Documentation.docx` | Editable source for the PDF. |
 | `ARCHITECTURE.md` | Architecture diagram source (Mermaid), end-to-end data flows, module map, APIs and operational boundaries. |
